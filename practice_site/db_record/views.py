@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import time
 from django.shortcuts import render
 from django.http import JsonResponse
 import requests
@@ -31,17 +32,48 @@ opener.addheaders.append(headers)
 def book_list(request):
     uid = request.GET.get('uid', '')
     url = 'https://book.douban.com/people/{}/collect'.format(uid)
+    url_page = 'https://book.douban.com/people/{}/collect?start={}&sort=time&rating=all&filter=all&mode=grid'
 
     resp = opener.open(url)
     content = resp.read()
 
     print('url:{}'.format(url))
-    print('resp:{}'.format(content.decode('utf-8')))
+    # print('resp:{}'.format(content.decode('utf-8')))
     html = etree.HTML(content)
+    #book_list = get_book_infos(html)
+    page_cnt = get_page_cnt(html)
+    get_tags(html)
+    book_list = []
+    for idx in range(page_cnt):
+        time.sleep(0.1)
+        resp = opener.open(url_page.format(uid, idx*15))
+        content = resp.read()
+        html = etree.HTML(content)
+        book_list.extend(get_book_infos(html))
+
+    return JsonResponse({'status': 0, 'data': {'book_infos': book_list, 'page_cnt': page_cnt}})
+
+
+def get_book_infos(html):
     titles = html.xpath('/html/body/div/div/div/div/ul/li/div/h2/a')
     hrefs = html.xpath('/html/body/div/div/div/div/ul/li/div/h2/a/@href')
     comments = html.xpath('/html/body/div/div/div/div/ul/li/div/div/p')
     for t, h, c in zip(titles, hrefs, comments):
         print('t:{} h:{} c:{}'.format(t.text.strip(), h, c.text))
     book_list = [(t.text.strip(), h, c.text.strip()) for t, h, c in zip(titles, hrefs, comments)]
-    return JsonResponse({'status': 0, 'data': book_list})
+    return book_list
+
+
+def get_page_cnt(html):
+    pages = html.xpath('/html/body/div/div/div/div/div/a')
+    for p in pages:
+        print('page: {}'.format(p.text))
+    pcnt = int(pages[-1].text)
+    return pcnt
+
+
+def get_tags(html):
+    tags = html.xpath('/html/body/div/div/div/div/ul/li/a')
+    cnts = html.xpath('/html/body/div/div/div/div/ul/li/span')
+    for t, c in zip(tags, cnts):
+        print('tag: {} cnt:{}'.format(t.text, c.text))
