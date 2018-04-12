@@ -10,6 +10,8 @@ import urllib
 import urllib2
 import cookielib
 
+from dals import DBDAL
+
 # Create your views here.
 # 模拟浏览器访问
 cookie=cookielib.CookieJar()
@@ -50,6 +52,8 @@ def book_list(request):
         content = resp.read()
         html = etree.HTML(content)
         book_list.extend(get_book_infos(html))
+    db_dal = DBDAL()
+    [db_dal.insert(t, c, h) for (t, h, c) in book_list]
 
     return JsonResponse({'status': 0, 'data': {'book_infos': book_list, 'page_cnt': page_cnt}})
 
