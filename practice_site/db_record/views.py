@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 import time
-from django.shortcuts import render
+from django.shortcuts import render, render_to_response
 from django.http import JsonResponse
 import requests
 from lxml import etree
@@ -10,7 +10,7 @@ import urllib
 import urllib2
 import cookielib
 
-from dals import DBDAL
+from dals import DBDAL, CloudTagDAL
 
 # Create your views here.
 # 模拟浏览器访问
@@ -31,8 +31,7 @@ opener=urllib2.build_opener(urllib2.HTTPCookieProcessor(cookie))
 opener.addheaders.append(headers)
 
 
-def book_list(request):
-    uid = request.GET.get('uid', '')
+def get_html(uid):
     url = 'https://book.douban.com/people/{}/collect'.format(uid)
     url_page = 'https://book.douban.com/people/{}/collect?start={}&sort=time&rating=all&filter=all&mode=grid'
 
@@ -40,13 +39,18 @@ def book_list(request):
     content = resp.read()
 
     print('url:{}'.format(url))
-    # print('resp:{}'.format(content.decode('utf-8')))
     html = etree.HTML(content)
-    #book_list = get_book_infos(html)
+    return html
+
+
+def book_list(request):
+    uid = request.GET.get('uid', '')
+    url_page = 'https://book.douban.com/people/{}/collect?start={}&sort=time&rating=all&filter=all&mode=grid'
+    html = get_html(uid)
     page_cnt = get_page_cnt(html)
-    get_tags(html)
+    _get_tags(html)
     book_list = []
-    for idx in range(page_cnt):
+    for idx in range(page_cnt)[:3]:
         time.sleep(0.1)
         resp = opener.open(url_page.format(uid, idx*15))
         content = resp.read()
@@ -76,8 +80,22 @@ def get_page_cnt(html):
     return pcnt
 
 
-def get_tags(html):
-    tags = html.xpath('/html/body/div/div/div/div/ul/li/a')
-    cnts = html.xpath('/html/body/div/div/div/div/ul/li/span')
-    for t, c in zip(tags, cnts):
+def _get_tags(html):
+    tags = html.xpath('/html/body/div/div/div/div/ul[@class="tag-list mb10"]/li/a')
+    cnts = html.xpath('/html/body/div/div/div/div/ul[@class="tag-list mb10"]/li/span')
+    rs = []
+    for t, c in zip(tags, cnts)[:33]:
         print('tag: {} cnt:{}'.format(t.text, c.text))
+        rs.append(' '.join([t.text] * int(c.text)))
+    return ' '.join(rs)
+
+
+def get_tags(request):
+    uid = request.GET.get('uid', '')
+    html = get_html(uid)
+    content = _get_tags(html)
+    print('ctype:{}'.format(type(content)))
+    print('content:{}'.format(content))
+    cloud_tag_dal = CloudTagDAL(content)
+    cloud_tag_dal.create_html_data()
+    return render_to_response('cloud.html')
