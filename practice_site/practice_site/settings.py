@@ -1,3 +1,4 @@
+# coding=utf-8
 """
 Django settings for practice_site project.
 
@@ -27,6 +28,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+FILE_CHARSET = 'utf-8'
+DEFAULT_CHARSET = 'utf-8'
 
 # Application definition
 
@@ -54,7 +57,7 @@ ROOT_URLCONF = 'practice_site.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -77,6 +80,15 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    },
+    'douban': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'test',
+        'USER': 'site',
+        'PASSWORD': 'hz123456',
+        'HOST': '127.0.0.1',
+        'PORT': 3306,
+        'OPTIONS': {'charset': 'utf8mb4'},
     }
 }
 
