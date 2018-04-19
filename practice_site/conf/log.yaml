@@ -1,0 +1,38 @@
+version: 1
+
+formatters:
+  simple:
+    format: "%(asctime)s\t%(funcName)s:%(filename)s:%(lineno)s\t%(thread)s\t%(levelname)s\t%(message)s"
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: simple
+    stream: ext://sys.stdout
+  api_handler:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: INFO
+    formatter: simple
+    filename: /var/log/site/api.log
+    when: midnight
+  exc_handler:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: INFO
+    formatter: simple
+    filename: /var/log/site/exception.log
+    when: midnight
+
+loggers:
+  api:
+    level: INFO
+    handlers:
+      - console
+      - api_handler
+    propagate: no
+  exc:
+    level: INFO
+    handlers:
+      - console
+      - exc_handler
+    propagate: no
