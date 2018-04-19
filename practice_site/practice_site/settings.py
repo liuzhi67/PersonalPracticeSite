@@ -55,7 +55,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'practice_site.urls'
+ROOT_URLCONF = 'urls'
 
 TEMPLATES = [
     {
@@ -73,7 +73,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'practice_site.wsgi.application'
+WSGI_APPLICATION = 'wsgi.application'
 
 
 # Database
@@ -136,6 +136,6 @@ STATIC_URL = '/static/'
 
 
 # log init
-with open('conf/log.yaml', 'r') as fp:
+with open('../conf/log.yaml', 'r') as fp:
     config = yaml.load(fp)
 dictConfig(config)
