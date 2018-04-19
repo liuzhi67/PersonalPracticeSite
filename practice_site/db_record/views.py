@@ -9,6 +9,7 @@ from lxml import etree
 import urllib
 import urllib2
 import cookielib
+import random
 
 from dals import DBDAL, CloudTagDAL
 
@@ -17,6 +18,7 @@ from dals import DBDAL, CloudTagDAL
 cookie=cookielib.CookieJar()
 handler=urllib2.HTTPCookieProcessor(cookie)
 opener=urllib2.build_opener(handler)
+# 先打开豆瓣建立cookie,否则https请求会403
 resp=opener.open('http://book.douban.com')
 for item in cookie:
     print 'Name = ' + item.name
@@ -33,12 +35,11 @@ opener.addheaders.append(headers)
 
 def get_html(uid):
     url = 'https://book.douban.com/people/{}/collect'.format(uid)
-    url_page = 'https://book.douban.com/people/{}/collect?start={}&sort=time&rating=all&filter=all&mode=grid'
+    # url = 'https://book.douban.com/people/{}/collect?start={}&sort=time&rating=all&filter=all&mode=grid'.format(uid, 0)
 
     resp = opener.open(url)
     content = resp.read()
 
-    print('url:{}'.format(url))
     html = etree.HTML(content)
     return html
 
@@ -86,6 +87,8 @@ def _get_tags(html):
     rs = []
     for t, c in zip(tags, cnts)[:33]:
         print('tag: {} cnt:{}'.format(t.text, c.text))
+        # 随机字符串导致的 segmentfault 出现概率低一些
+        # rs.append(' '.join([len(t.text) * str(random.randint(100, 10000))] * int(c.text)))
         rs.append(' '.join([t.text] * int(c.text)))
     return ' '.join(rs)
 
