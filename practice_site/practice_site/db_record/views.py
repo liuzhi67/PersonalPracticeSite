@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import time
+import logging
 from django.shortcuts import render, render_to_response
 from django.http import JsonResponse
 import requests
@@ -12,6 +13,10 @@ import cookielib
 import random
 
 from dals import DBDAL, CloudTagDAL
+
+
+api_logger = logging.getLogger('api')
+
 
 # Create your views here.
 # 模拟浏览器访问
@@ -33,10 +38,7 @@ opener=urllib2.build_opener(urllib2.HTTPCookieProcessor(cookie))
 opener.addheaders.append(headers)
 
 
-def get_html(uid):
-    url = 'https://book.douban.com/people/{}/collect'.format(uid)
-    # url = 'https://book.douban.com/people/{}/collect?start={}&sort=time&rating=all&filter=all&mode=grid'.format(uid, 0)
-
+def get_html(url):
     resp = opener.open(url)
     content = resp.read()
 
@@ -46,8 +48,10 @@ def get_html(uid):
 
 def book_list(request):
     uid = request.GET.get('uid', '')
+    url = 'https://book.douban.com/people/{}/collect'.format(uid)
+    api_logger.info('uid:{}|url:{}'.format(uid, url))
+    html = get_html(url)
     url_page = 'https://book.douban.com/people/{}/collect?start={}&sort=time&rating=all&filter=all&mode=grid'
-    html = get_html(uid)
     page_cnt = get_page_cnt(html)
     _get_tags(html)
     book_list = []
@@ -95,7 +99,9 @@ def _get_tags(html):
 
 def get_tags(request):
     uid = request.GET.get('uid', '')
-    html = get_html(uid)
+    url = 'https://book.douban.com/people/{}/collect'.format(uid)
+    api_logger.info('uid:{}|url:{}'.format(uid, url))
+    html = get_html(url)
     content = _get_tags(html)
     print('ctype:{}'.format(type(content)))
     print('content:{}'.format(content))
