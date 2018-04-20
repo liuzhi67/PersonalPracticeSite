@@ -39,7 +39,9 @@ opener.addheaders.append(headers)
 
 
 def get_html(url):
+    api_logger.info('url:{} querying...'.format(url))
     resp = opener.open(url)
+    api_logger.info('url:{} query finished code:{}'.format(url, resp.code))
     content = resp.read()
 
     html = etree.HTML(content)
@@ -49,17 +51,13 @@ def get_html(url):
 def book_list(request):
     uid = request.GET.get('uid', '')
     url = 'https://book.douban.com/people/{}/collect'.format(uid)
-    api_logger.info('uid:{}|url:{}'.format(uid, url))
     html = get_html(url)
-    url_page = 'https://book.douban.com/people/{}/collect?start={}&sort=time&rating=all&filter=all&mode=grid'
     page_cnt = get_page_cnt(html)
-    _get_tags(html)
     book_list = []
+    url_page = 'https://book.douban.com/people/{}/collect?start={}&sort=time&rating=all&filter=all&mode=grid'
     for idx in range(page_cnt)[:3]:
         time.sleep(0.1)
-        resp = opener.open(url_page.format(uid, idx*15))
-        content = resp.read()
-        html = etree.HTML(content)
+        html = get_html(url_page.format(uid, idx*15))
         book_list.extend(get_book_infos(html))
     db_dal = DBDAL()
     [db_dal.insert(t, c, h) for (t, h, c) in book_list]
@@ -100,11 +98,8 @@ def _get_tags(html):
 def get_tags(request):
     uid = request.GET.get('uid', '')
     url = 'https://book.douban.com/people/{}/collect'.format(uid)
-    api_logger.info('uid:{}|url:{}'.format(uid, url))
     html = get_html(url)
     content = _get_tags(html)
-    print('ctype:{}'.format(type(content)))
-    print('content:{}'.format(content))
     cloud_tag_dal = CloudTagDAL(content)
     cloud_tag_dal.create_html_data()
     return render_to_response('cloud.html')
