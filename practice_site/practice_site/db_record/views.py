@@ -76,7 +76,7 @@ def get_book_infos(html):
 
 
 def get_page_cnt(html):
-    pages = html.xpath('/html/body/div/div/div/div/div/a')
+    pages = html.xpath('/html/body/div/div/div/div/div[@class="paginator"]/a')
     for p in pages:
         print('page: {}'.format(p.text))
     pcnt = int(pages[-1].text)
@@ -97,7 +97,10 @@ def _get_tags(html):
 
 def get_tags(request):
     uid = request.GET.get('uid', '')
-    url = 'https://book.douban.com/people/{}/collect'.format(uid)
+    channel = request.GET.get('channel', 'book')
+    if channel not in ['book', 'movie']:
+        channel = 'book'
+    url = 'https://{}.douban.com/people/{}/collect'.format(channel, uid)
     html = get_html(url)
     content = _get_tags(html)
     cloud_tag_dal = CloudTagDAL(content)
