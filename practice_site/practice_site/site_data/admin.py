@@ -12,5 +12,5 @@ class AreaAdmin(admin.ModelAdmin):
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description', 'mtime', 'ctime')
+    list_display = ('user_id', 'name', 'description', 'mtime', 'ctime')
     list_editable = []
