@@ -6,7 +6,7 @@ from models import Site, User
 
 
 @admin.register(Site)
-class AreaAdmin(admin.ModelAdmin):
+class SiteAdmin(admin.ModelAdmin):
     list_display = ('name', 'url', 'mtime', 'ctime')
 
 
