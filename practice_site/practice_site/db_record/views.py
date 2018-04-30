@@ -106,3 +106,16 @@ def get_tags(request):
     cloud_tag_dal = CloudTagDAL(content)
     cloud_tag_dal.create_html_data()
     return render_to_response('cloud.html')
+
+
+def get_simple_tags(request):
+    uid = request.GET.get('uid', '')
+    channel = request.GET.get('channel', 'book')
+    if channel not in ['book', 'movie']:
+        channel = 'book'
+    url = 'https://{}.douban.com/people/{}/collect'.format(channel, uid)
+    html = get_html(url)
+    content = _get_tags(html)
+    cloud_tag_dal = CloudTagDAL(content)
+    cloud_tag_dal.create_simple_html_data()
+    return render_to_response('simple_cloud.html')

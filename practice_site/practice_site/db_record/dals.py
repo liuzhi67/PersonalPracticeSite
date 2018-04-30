@@ -37,6 +37,7 @@ class CloudTagDAL(object):
 
         template_file = open(os.path.join('templates/', 'web/template.html'), 'r')
         html_template = Template(template_file.read())
+        template_file.close()
 
         context = {}
 
@@ -56,5 +57,37 @@ class CloudTagDAL(object):
         html_text = html_template.substitute(context)
 
         html_file = open('templates/cloud.html', 'w')
+        html_file.write(html_text.encode('utf-8'))
+        html_file.close()
+
+    def create_simple_html_data(self):
+        """
+        HTML code sample
+        """
+        tags = make_tags(get_tag_counts(self.content), maxsize=120, colors=COLOR_SCHEMES['audacity'])
+        # FIXME 存在segmentfault bug
+        data = create_html_data(tags, (1000,1000), layout=LAYOUT_HORIZONTAL, fontname='PT Sans Regular')
+
+        template_file = open(os.path.join('templates/', 'web/simple_template.html'), 'r')
+        html_template = Template(template_file.read())
+        template_file.close()
+
+        context = {}
+
+        tags_template = '<li class="cnt" style="top: %(top)dpx; left: %(left)dpx; height: %(height)dpx; font-size: %(size)dpx;">%(tag)s</li>'
+
+        context['tags'] = ''.join([tags_template % link for link in data['links']])
+        context['width'] = data['size'][0]
+        context['height'] = data['size'][1]
+        context['css'] = "".join("a.%(cname)s{color:%(normal)s;}\
+        a.%(cname)s:hover{color:%(hover)s;}" %
+                                  {'cname':k,
+                                   'normal': v[0],
+                                   'hover': v[1]}
+                                 for k,v in data['css'].items())
+
+        html_text = html_template.substitute(context)
+
+        html_file = open('templates/simple_cloud.html', 'w')
         html_file.write(html_text.encode('utf-8'))
         html_file.close()
