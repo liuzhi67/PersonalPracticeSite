@@ -74,7 +74,10 @@ class CloudTagDAL(object):
 
         context = {}
 
-        tags_template = '<li class="cnt" style="top: %(top)dpx; left: %(left)dpx; height: %(height)dpx; font-size: %(size)dpx;">%(tag)s</li>'
+        tags_template = '<li class="cnt" style="top: %(top)dpx; left: %(left)dpx; height: %(height)dpx; font-size: %(size)dpx; color: %(color)s;">%(tag)s</li>'
+
+        for link in data['links']:
+            link['color'] = data['css'][link['cls']][0]
 
         context['tags'] = ''.join([tags_template % link for link in data['links']])
         context['width'] = data['size'][0]
