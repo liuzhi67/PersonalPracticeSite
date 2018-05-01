@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import time
 import logging
+from collections import Counter
 from django.shortcuts import render, render_to_response
 from django.http import JsonResponse
 import requests
@@ -87,12 +88,14 @@ def _get_tags(html):
     tags = html.xpath('/html/body/div/div/div/div/ul[@class="tag-list mb10"]/li/a')
     cnts = html.xpath('/html/body/div/div/div/div/ul[@class="tag-list mb10"]/li/span')
     rs = []
+    tag_cnter = Counter()
     for t, c in zip(tags, cnts)[:33]:
         print('tag: {} cnt:{}'.format(t.text, c.text))
         # 随机字符串导致的 segmentfault 出现概率低一些
         # rs.append(' '.join([len(t.text) * str(random.randint(100, 10000))] * int(c.text)))
         rs.append(' '.join([t.text] * int(c.text)))
-    return ' '.join(rs)
+        tag_cnter[t.text] = int(c.text)
+    return tag_cnter, ' '.join(rs)
 
 
 def get_tags(request):
@@ -102,7 +105,7 @@ def get_tags(request):
         channel = 'book'
     url = 'https://{}.douban.com/people/{}/collect'.format(channel, uid)
     html = get_html(url)
-    content = _get_tags(html)
+    _, content = _get_tags(html)
     cloud_tag_dal = CloudTagDAL(content)
     cloud_tag_dal.create_html_data()
     return render_to_response('cloud.html')
@@ -115,7 +118,7 @@ def get_simple_tags(request):
         channel = 'book'
     url = 'https://{}.douban.com/people/{}/collect'.format(channel, uid)
     html = get_html(url)
-    content = _get_tags(html)
-    cloud_tag_dal = CloudTagDAL(content)
-    cloud_tag_dal.create_simple_html_data()
+    tag_cnter, _ = _get_tags(html)
+    cloud_tag_dal = CloudTagDAL('')
+    cloud_tag_dal.create_simple_html_data(tag_cnter, 800, 800)
     return render_to_response('simple_cloud.html')
