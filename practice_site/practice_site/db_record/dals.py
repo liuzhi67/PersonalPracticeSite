@@ -146,10 +146,9 @@ class CloudTagDAL(object):
         html_template = Template(template_file.read())
         template_file.close()
 
-        context = {}
-
         tags_template = '<li class="cnt" style="top: %(top)dpx; left: %(left)dpx; height: %(height)dpx; font-size: %(size)dpx; color: %(color)s;">%(tag)s</li>'
 
+        context = {}
         context['tags'] = ''.join([tags_template % v for _, v in norm_tags.items()])
         context['width'] = width
         context['height'] = height
