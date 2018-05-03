@@ -71,7 +71,8 @@ def get_book_infos(html):
     hrefs = html.xpath('/html/body/div/div/div/div/ul/li/div/h2/a/@href')
     comments = html.xpath('/html/body/div/div/div/div/ul/li/div/div/p')
     for t, h, c in zip(titles, hrefs, comments):
-        print('t:{} h:{} c:{}'.format(t.text.strip(), h, c.text))
+        # FIXME encode problem
+        api_logger.info('t:{} h:{} c:{}'.format(type(t.text.strip()), type(h), type(c.text)))
     book_list = [(t.text.strip(), h, c.text.strip()) for t, h, c in zip(titles, hrefs, comments)]
     return book_list
 
@@ -79,7 +80,7 @@ def get_book_infos(html):
 def get_page_cnt(html):
     pages = html.xpath('/html/body/div/div/div/div/div[@class="paginator"]/a')
     for p in pages:
-        print('page: {}'.format(p.text))
+        api_logger.info('page: {}'.format(p.text))
     pcnt = int(pages[-1].text)
     return pcnt
 
@@ -90,7 +91,7 @@ def _get_tags(html):
     rs = []
     tag_cnter = Counter()
     for t, c in zip(tags, cnts)[:33]:
-        print('tag: {} cnt:{}'.format(t.text, c.text))
+        api_logger.info('tag: {} cnt:{}'.format(type(t.text), type(c.text)))
         # 随机字符串导致的 segmentfault 出现概率低一些
         # rs.append(' '.join([len(t.text) * str(random.randint(100, 10000))] * int(c.text)))
         rs.append(' '.join([t.text] * int(c.text)))
