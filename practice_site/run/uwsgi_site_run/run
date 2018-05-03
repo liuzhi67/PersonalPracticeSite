@@ -1,0 +1,5 @@
+#!/bin/sh
+cd ../../practice_site/
+
+echo "`date '+%Y-%m-%d %H:%M:%S'`  `hostname`: practice_site restart" >> /var/log/practice_site_svc.log
+exec uwsgi --plugin python -x uwsgi.site.xml >> /var/log/practice_site_run.log 2>> /var/log/practice_site_err.log

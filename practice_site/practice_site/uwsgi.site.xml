@@ -1,0 +1,16 @@
+<uwsgi>
+    <socket>0.0.0.0:8000</socket>
+    <listen>100</listen>
+    <master>true</master>
+    <processes>5</processes>
+    <threads>20</threads>
+    <module>wsgi</module>
+    <profiler>false</profiler>
+    <memory-report>false</memory-report>
+    <enable-threads>true</enable-threads>
+    <limit-as>6048</limit-as>
+    <buffer-size>65536</buffer-size>
+    <harakiri>30</harakiri>
+    <disable-logging>true</disable-logging>
+    <lazy-apps>true</lazy-apps>
+</uwsgi>
