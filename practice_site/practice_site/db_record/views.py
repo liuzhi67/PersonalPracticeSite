@@ -14,6 +14,7 @@ import cookielib
 import random
 
 from dals import DBDAL, CloudTagDAL
+from constants import DB_CHANNEL_HOME_URL, DB_CHANNELS, BOOK
 
 
 api_logger = logging.getLogger('api')
@@ -90,7 +91,7 @@ def _get_tags(html):
     cnts = html.xpath('/html/body/div/div/div/div/ul[@class="tag-list mb10"]/li/span')
     rs = []
     tag_cnter = Counter()
-    for t, c in zip(tags, cnts)[:33]:
+    for t, c in zip(tags, cnts)[:]:
         api_logger.info('tag: {} cnt:{}'.format(type(t.text), type(c.text)))
         # 随机字符串导致的 segmentfault 出现概率低一些
         # rs.append(' '.join([len(t.text) * str(random.randint(100, 10000))] * int(c.text)))
@@ -101,10 +102,10 @@ def _get_tags(html):
 
 def get_tags(request):
     uid = request.GET.get('uid', '')
-    channel = request.GET.get('channel', 'book')
-    if channel not in ['book', 'movie']:
-        channel = 'book'
-    url = 'https://{}.douban.com/people/{}/collect'.format(channel, uid)
+    channel = request.GET.get('channel', BOOK)
+    if channel not in DB_CHANNELS:
+        channel = BOOK
+    url = DB_CHANNEL_HOME_URL.format(channel, uid)
     html = get_html(url)
     _, content = _get_tags(html)
     cloud_tag_dal = CloudTagDAL(content)
@@ -114,10 +115,10 @@ def get_tags(request):
 
 def get_simple_tags(request):
     uid = request.GET.get('uid', '')
-    channel = request.GET.get('channel', 'book')
-    if channel not in ['book', 'movie']:
-        channel = 'book'
-    url = 'https://{}.douban.com/people/{}/collect'.format(channel, uid)
+    channel = request.GET.get('channel', BOOK)
+    if channel not in DB_CHANNELS:
+        channel = BOOK
+    url = DB_CHANNEL_HOME_URL.format(channel, uid)
     html = get_html(url)
     tag_cnter, _ = _get_tags(html)
     cloud_tag_dal = CloudTagDAL('')
