@@ -22,10 +22,17 @@ class DBDAL(object):
 
     def insert(self, title, comment, url):
         sql = 'insert into db_book(title, comment, url) values ("{}", "{}", "{}");'.format(title.encode('utf-8'), comment.encode('utf-8'), url)
-        print('sql:{}'.format(sql))
+        api_logger.info('sql:{}'.format(sql))
         res = self.cursor.execute(sql)
         self.db.commit()
         return res
+
+    def execute(self, sql):
+        api_logger.info('sql:{}'.format(sql))
+        res = self.cursor.execute(sql)
+        self.db.commit()
+        rcs = self.cursor.fetchall()
+        return res, rcs
 
 
 class CloudTagDAL(object):
