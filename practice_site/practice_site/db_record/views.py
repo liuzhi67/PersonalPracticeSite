@@ -18,6 +18,7 @@ from constants import DB_CHANNEL_HOME_URL, DB_CHANNELS, BOOK
 
 
 api_logger = logging.getLogger('api')
+db_dal = DBDAL()
 
 
 # Create your views here.
@@ -61,7 +62,6 @@ def book_list(request):
         time.sleep(0.1)
         html = get_html(url_page.format(uid, idx*15))
         book_list.extend(get_book_infos(html))
-    db_dal = DBDAL()
     [db_dal.insert(t, c, h) for (t, h, c) in book_list]
 
     return JsonResponse({'status': 0, 'data': {'book_infos': book_list, 'page_cnt': page_cnt}})
@@ -92,7 +92,7 @@ def _get_tags(html):
     rs = []
     tag_cnter = Counter()
     for t, c in zip(tags, cnts)[:]:
-        api_logger.info('tag: {} cnt:{}'.format(type(t.text), type(c.text)))
+        pass #api_logger.info('tag: {} cnt:{}'.format(type(t.text), type(c.text)))
         # 随机字符串导致的 segmentfault 出现概率低一些
         # rs.append(' '.join([len(t.text) * str(random.randint(100, 10000))] * int(c.text)))
         rs.append(' '.join([t.text] * int(c.text)))
