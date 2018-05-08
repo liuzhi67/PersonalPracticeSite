@@ -62,7 +62,7 @@ def book_list(request):
         time.sleep(0.1)
         html = get_html(url_page.format(uid, idx*15))
         book_list.extend(get_book_infos(html))
-    [db_dal.insert(t, c, h) for (t, h, c) in book_list]
+    [db_dal.insert(t, c, h) for (t, h, c, p, d, tg, r) in book_list]
 
     return JsonResponse({'status': 0, 'data': {'book_infos': book_list, 'page_cnt': page_cnt}})
 
@@ -70,11 +70,17 @@ def book_list(request):
 def get_book_infos(html):
     titles = html.xpath('/html/body/div/div/div/div/ul/li/div/h2/a')
     hrefs = html.xpath('/html/body/div/div/div/div/ul/li/div/h2/a/@href')
-    comments = html.xpath('/html/body/div/div/div/div/ul/li/div/div/p')
-    for t, h, c in zip(titles, hrefs, comments):
+    comments = html.xpath('/html/body/div/div/div/div/ul/li/div/div/p[@class="comment"]')
+    pubs = html.xpath('/html/body/div/div/div/div/ul/li/div/div[@class="pub"]')
+    dates = html.xpath('/html/body/div/div/div/div/ul/li/div/div[@class="short-note"]/div/span[@class="date"]')
+    tags = html.xpath('/html/body/div/div/div/div/ul/li/div/div[@class="short-note"]/div/span[@class="tags"]')
+    ratings = html.xpath('/html/body/div/div/div/div/ul/li/div/div[@class="short-note"]/div/span/@class')
+    ratings = filter(lambda x: x.find('rating')==0, ratings)
+    for t, h, c, p, d, tg, r in zip(titles, hrefs, comments, pubs, dates, tags, ratings):
         # FIXME encode problem
-        api_logger.info('t:{} h:{} c:{}'.format(type(t.text.strip()), type(h), type(c.text)))
-    book_list = [(t.text.strip(), h, c.text.strip()) for t, h, c in zip(titles, hrefs, comments)]
+        api_logger.info('t:{} h:{} c:{} p:{} d:{} tg:{} r:{}'.format(t.text.strip(), h, c.text.strip(), p.text.strip(), d.text.strip(), tg.text.strip(), r.strip()))
+    book_list = [(t.text.strip(), h, c.text.strip(), p.text.strip(), d.text.strip(), tg.text.strip(), r.strip())\
+            for t, h, c, p, d, tg, r in zip(titles, hrefs, comments, pubs, dates, tags, ratings)]
     return book_list
 
 
