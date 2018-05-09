@@ -15,6 +15,7 @@ import os
 import yaml
 import logging
 from logging.config import dictConfig
+from db_record.dals import DBDAL
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -152,3 +153,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 with open('../conf/log.yaml', 'r') as fp:
     config = yaml.load(fp)
 dictConfig(config)
+
+
+db_dal = DBDAL()
