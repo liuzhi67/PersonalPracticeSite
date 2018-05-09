@@ -13,12 +13,12 @@ import urllib2
 import cookielib
 import random
 
+from settings import db_dal
 from dals import DBDAL, CloudTagDAL
 from constants import DB_CHANNEL_HOME_URL, DB_CHANNELS, BOOK
 
 
 api_logger = logging.getLogger('api')
-db_dal = DBDAL()
 
 
 # Create your views here.
@@ -68,6 +68,7 @@ def book_list(request):
 
 
 def get_book_infos(html):
+    # TODO 通过前缀取div块，再逐个取其中的元素, 避免元素数量不一致导致的bug
     titles = html.xpath('/html/body/div/div/div/div/ul/li/div/h2/a')
     hrefs = html.xpath('/html/body/div/div/div/div/ul/li/div/h2/a/@href')
     comments = html.xpath('/html/body/div/div/div/div/ul/li/div/div/p[@class="comment"]')
