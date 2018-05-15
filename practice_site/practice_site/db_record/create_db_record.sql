@@ -1,5 +1,6 @@
 CREATE TABLE `db_record` (
       `id` bigint(20) NOT NULL AUTO_INCREMENT,
+      `type` tinyint NOT NULL DEFAULT 0,
       `title` varchar(255) NOT NULL DEFAULT '',
       `comment` text NOT NULL,
       `url` varchar(255) NOT NULL DEFAULT '',
