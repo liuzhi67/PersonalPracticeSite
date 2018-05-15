@@ -15,7 +15,7 @@ import random
 
 from settings import db_dal
 from dals import DBDAL, CloudTagDAL
-from constants import DB_CHANNEL_HOME_URL, DB_CHANNELS, BOOK
+from constants import DB_CHANNEL_HOME_URL, DB_CHANNELS, BOOK, RATING_DCT
 
 
 api_logger = logging.getLogger('api')
@@ -62,7 +62,11 @@ def book_list(request):
         time.sleep(0.1)
         html = get_html(url_page.format(uid, idx*15))
         book_list.extend(get_book_infos(html))
-    [db_dal.insert(t, c, h) for (t, h, c, p, d, tg, r) in book_list]
+    # [db_dal.insert(t, c, h) for (t, h, c, p, d, tg, r) in book_list]
+    for (t, h, c, p, d, tg, r) in book_list:
+        sql = 'insert into db_record(type, title, url, comment, pub, mark_date, tags, rating) \
+                values ({}, "{}", "{}", "{}", "{}", "{}", "{}", {});'.format(1, t, h, c, p, d, tg, RATING_DCT.get(r, 0))
+        db_dal.execute(sql)
 
     return JsonResponse({'status': 0, 'data': {'book_infos': book_list, 'page_cnt': page_cnt}})
 

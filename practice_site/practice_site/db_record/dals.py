@@ -12,13 +12,14 @@ from string import Template
 
 
 api_logger = logging.getLogger('api')
+exception_logger = logging.getLogger('exc')
 
 
 class DBDAL(object):
     def __init__(self):
-        self.db = MySQLdb.connect(host='127.0.0.1', port=3306, user='site', passwd='hz123456', db='test')
+        self.db = MySQLdb.connect(host='127.0.0.1', port=3306, user='site', passwd='hz123456', db='test', charset='utf8mb4')
         self.cursor = self.db.cursor()
-        self.cursor.execute('set names utf8mb4;')
+        # self.cursor.execute('set names utf8mb4;')
 
     def insert(self, title, comment, url):
         sql = 'insert into db_book(title, comment, url) values ("{}", "{}", "{}");'.format(title.encode('utf-8'), comment.encode('utf-8'), url)
@@ -28,11 +29,15 @@ class DBDAL(object):
         return res
 
     def execute(self, sql):
-        api_logger.info('sql:{}'.format(sql))
-        res = self.cursor.execute(sql)
-        self.db.commit()
-        rcs = self.cursor.fetchall()
-        return res, rcs
+        try:
+            res = self.cursor.execute(sql)
+            self.db.commit()
+            rcs = self.cursor.fetchall()
+            api_logger.info('executed sql:{}'.format(sql.encode('utf-8')))
+            return res, rcs
+        except Exception as e:
+            exception_logger.exception('execute sql except:{}'.format(e))
+        return None, None
 
 
 class CloudTagDAL(object):
