@@ -14,12 +14,9 @@ import cookielib
 import random
 
 from settings import db_dal
+from logs import api_logger, debug_logger
 from dals import DBDAL, CloudTagDAL
 from constants import DB_CHANNEL_HOME_URL, DB_CHANNELS, BOOK, RATING_DCT
-
-
-api_logger = logging.getLogger('api')
-debug_logger = logging.getLogger('debug')
 
 
 # Create your views here.

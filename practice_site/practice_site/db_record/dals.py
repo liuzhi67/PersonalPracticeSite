@@ -10,9 +10,7 @@ from pytagcloud.colors import COLOR_SCHEMES
 from pytagcloud.lang.counter import get_tag_counts
 from string import Template
 
-
-api_logger = logging.getLogger('api')
-exception_logger = logging.getLogger('exc')
+from logs import api_logger, exception_logger
 
 
 class DBDAL(object):
