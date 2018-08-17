@@ -17,6 +17,7 @@ from settings import db_dal
 from logs import api_logger, debug_logger
 from dals import DBDAL, CloudTagDAL
 from constants import DB_CHANNEL_HOME_URL, DB_CHANNELS, BOOK, RATING_DCT
+from putils.api import rlog, zipkin_span_dec
 
 
 # Create your views here.
@@ -39,6 +40,7 @@ opener=urllib2.build_opener(urllib2.HTTPCookieProcessor(cookie))
 opener.addheaders.append(headers)
 
 
+@zipkin_span_dec()
 def get_html(url):
     api_logger.info('url:{} querying...'.format(url))
     resp = opener.open(url)
@@ -49,6 +51,7 @@ def get_html(url):
     return html
 
 
+@rlog()
 def book_list(request):
     uid = request.GET.get('uid', '')
     url = 'https://book.douban.com/people/{}/collect'.format(uid)
@@ -87,6 +90,7 @@ def get_book_infos(html):
     return book_list
 
 
+@zipkin_span_dec()
 def get_page_cnt(html):
     pages = html.xpath('/html/body/div/div/div/div/div[@class="paginator"]/a')
     for p in pages:
