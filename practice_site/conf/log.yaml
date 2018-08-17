@@ -22,17 +22,27 @@ handlers:
     formatter: simple
     filename: /var/log/site/exception.log
     when: midnight
+  debug_handler:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: DEBUG
+    formatter: simple
+    filename: /var/log/site/debug.log
+    when: midnight
 
 loggers:
   api:
     level: INFO
     handlers:
-      - console
       - api_handler
     propagate: no
   exc:
     level: INFO
     handlers:
-      - console
       - exc_handler
+    propagate: no
+  debug:
+    level: DEBUG
+    handlers:
+      - console
+      - debug_handler
     propagate: no

@@ -19,6 +19,7 @@ from constants import DB_CHANNEL_HOME_URL, DB_CHANNELS, BOOK, RATING_DCT
 
 
 api_logger = logging.getLogger('api')
+debug_logger = logging.getLogger('debug')
 
 
 # Create your views here.
@@ -83,7 +84,7 @@ def get_book_infos(html):
     ratings = filter(lambda x: x.find('rating')==0, ratings)
     for t, h, c, p, d, tg, r in zip(titles, hrefs, comments, pubs, dates, tags, ratings):
         # FIXME encode problem
-        api_logger.info('t:{} h:{} c:{} p:{} d:{} tg:{} r:{}'.format(t.text.strip(), h, c.text.strip(), p.text.strip(), d.text.strip(), tg.text.strip(), r.strip()))
+        debug_logger.debug('t:{} h:{} c:{} p:{} d:{} tg:{} r:{}'.format(t.text.strip(), h, c.text.strip(), p.text.strip(), d.text.strip(), tg.text.strip(), r.strip()))
     book_list = [(t.text.strip(), h, c.text.strip(), p.text.strip(), d.text.strip(), tg.text.strip(), r.strip())\
             for t, h, c, p, d, tg, r in zip(titles, hrefs, comments, pubs, dates, tags, ratings)]
     return book_list
@@ -103,7 +104,7 @@ def _get_tags(html):
     rs = []
     tag_cnter = Counter()
     for t, c in zip(tags, cnts)[:]:
-        pass #api_logger.info('tag: {} cnt:{}'.format(type(t.text), type(c.text)))
+        debug_logger.debug('tag: {} cnt:{}'.format(type(t.text), type(c.text)))
         # 随机字符串导致的 segmentfault 出现概率低一些
         # rs.append(' '.join([len(t.text) * str(random.randint(100, 10000))] * int(c.text)))
         rs.append(' '.join([t.text] * int(c.text)))
